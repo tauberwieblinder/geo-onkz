@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>German Area Code Lookup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, button {
+            padding: 8px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: none;
+        }
+        .examples {
+            margin-top: 30px;
+        }
+        .example {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>German Area Code Lookup</h1>
+    <p>Enter geographic coordinates to find the German area code for that location.</p>
+    
+    <div class="form-group">
+        <label for="latitude">Latitude:</label>
+        <input type="text" id="latitude" placeholder="e.g., 52.516667">
+    </div>
+    
+    <div class="form-group">
+        <label for="longitude">Longitude:</label>
+        <input type="text" id="longitude" placeholder="e.g., 13.388889">
+    </div>
+    
+    <button id="lookup">Find Area Code</button>
+    
+    <div id="result"></div>
+    
+    <div class="examples">
+        <h3>Example Locations:</h3>
+        <span class="example" data-lat="52.516667" data-lon="13.388889">Berlin</span>
+        <span class="example" data-lat="48.137222" data-lon="11.575556">Munich</span>
+        <span class="example" data-lat="50.938361" data-lon="6.959974">Cologne</span>
+        <span class="example" data-lat="53.551086" data-lon="9.993682">Hamburg</span>
+        <span class="example" data-lat="50.110924" data-lon="8.682127">Frankfurt</span>
+        <span class="example" data-lat="51.3148572" data-lon="9.3782151">Kassel</span>
+    </div>
+    
+    <script>
+        document.getElementById('lookup').addEventListener('click', lookupAreaCode);
+        
+        document.querySelectorAll('.example').forEach(example => {
+            example.addEventListener('click', function() {
+                document.getElementById('latitude').value = this.getAttribute('data-lat');
+                document.getElementById('longitude').value = this.getAttribute('data-lon');
+                lookupAreaCode();
+            });
+        });
+        
+        function lookupAreaCode() {
+            const lat = document.getElementById('latitude').value;
+            const lon = document.getElementById('longitude').value;
+            
+            if (!lat || !lon) {
+                alert('Please enter both latitude and longitude');
+                return;
+            }
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Loading...';
+            resultDiv.style.display = 'block';
+            
+            fetch(`/api/areacode?lat=${lat}&lon=${lon}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    resultDiv.innerHTML = `
+                        <h3>Result:</h3>
+                        <p><strong>Area Code:</strong> ${data.areaCode}</p>
+                    `;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `
+                        <h3>Error:</h3>
+                        <p>Could not find area code for these coordinates.</p>
+                        <p>Details: ${error.message}</p>
+                    `;
+                });
+        }
+    </script>
+</body>
+</html>
