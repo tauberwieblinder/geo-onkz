@@ -1,6 +1,8 @@
 package de.tauberwieblinder.geo_onkz.controller;
 
 import de.tauberwieblinder.geo_onkz.model.AreaCodeResponse;
+import de.tauberwieblinder.geo_onkz.model.GeoCoordinate;
+import de.tauberwieblinder.geo_onkz.service.ShapefileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +17,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AreaCodeController {
 
+    private final ShapefileService shapefileService;
+
     @GetMapping
     public ResponseEntity<AreaCodeResponse> getAreaCode(
             @RequestParam("lat") double latitude,
             @RequestParam("lon") double longitude) {
 
         log.info("Received request for coordinates: lat={}, lon={}", latitude, longitude);
-        AreaCodeResponse response = new AreaCodeResponse("5673");   // mocked for now
+        AreaCodeResponse response = shapefileService.findAreaCode(new GeoCoordinate(latitude, longitude));
 
         if (response != null) {
             return ResponseEntity.ok(response);
